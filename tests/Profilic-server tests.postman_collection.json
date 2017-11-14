@@ -1,0 +1,803 @@
+{
+	"info": {
+		"name": "Profilic-server tests",
+		"_postman_id": "1d2b0602-e4ab-0371-42e5-85661a4d29d1",
+		"description": "# API endpoints for profilic-server.\n\nAPI Calls\n\n- GET /api/v1/profiles\n- GET /api/v1/profiles/:username\n- PUT /api/v1/profiles/filter/:fieldname\n- POST /api/v1/profiles/create\n- POST /api/v1/profiles/signup\n- POST /api/v1/profiles/link\n- PUT /api/v1/profiles/update\n- PUT /api/v1/profiles/updatelist\n- PUT /api/v1/profiles/login\n- POST /api/v1/profiles/auth\n- DELETE /api/v1/profiles/:id",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET Profiles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}",
+					"host": [
+						"{{baseurl}}"
+					]
+				},
+				"description": "Get all the profiles in the database"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Create Empty",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/create",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"create"
+					]
+				},
+				"description": "Create request with no payload"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Signup Empty",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Signup request with no payload"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Create Profile (Raw Create)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"OK response\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"testId1\", jsonData.profileList[0]._id);\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user1",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "bio",
+							"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "following[]",
+							"value": "red, yellow, orange",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/create",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"create"
+					]
+				},
+				"description": "Create a raw profile directly on the server without going through any signup validation. Useful for test raw database connectivity and confirm the correct database collection is available."
+			},
+			"response": [
+				{
+					"id": "6dae3132-1997-4f06-b440-0510208cb64c",
+					"name": "POST : Create Profile (Raw Create)",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "tester",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "bio",
+									"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
+									"type": "text",
+									"description": ""
+								},
+								{
+									"key": "following[]",
+									"value": "red, yellow, orange",
+									"type": "text",
+									"description": ""
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseurl}}/create",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"_postman_previewtype": "text",
+					"header": [
+						{
+							"key": "Connection",
+							"value": "keep-alive",
+							"name": "Connection",
+							"description": "Options that are desired for the connection"
+						},
+						{
+							"key": "Content-Length",
+							"value": "236",
+							"name": "Content-Length",
+							"description": "The length of the response body in octets (8-bit bytes)"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8",
+							"name": "Content-Type",
+							"description": "The mime type of this content"
+						},
+						{
+							"key": "Date",
+							"value": "Mon, 13 Nov 2017 16:20:23 GMT",
+							"name": "Date",
+							"description": "The date and time that the message was sent"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"ec-ecTRn2WXeuTghkzT0EvHKHNDQ+o\"",
+							"name": "ETag",
+							"description": "An identifier for a specific version of a resource, often a message digest"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "Express",
+							"name": "X-Powered-By",
+							"description": "Specifies the technology (ASP.NET, PHP, JBoss, e.g.) supporting the web application (version details are often in X-Runtime, X-Version, or X-AspNet-Version)"
+						}
+					],
+					"cookie": [],
+					"responseTime": 106,
+					"body": "{\"profileList\":[{\"username\":\"tester\",\"bio\":\"I am a tester! This is a test. I even have strange characters:  διακριτικός\",\"following\":[\"red, yellow, orange\"],\"_id\":\"5a09c6472c84ca2ffc76a6e9\"}],\"insertedCount\":1,\"message\":\"OK\"}"
+				}
+			]
+		},
+		{
+			"name": "POST : Bad Signup (no pwd)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user2",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "email",
+							"value": "foo@bar.com",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "bio",
+							"value": "I am a tester! This is a test.",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Creation of a user profile with a unique username, but no password"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Good Signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"testId2\", jsonData.profileList[0]._id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user3",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "password",
+							"value": "user3pass",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "email",
+							"value": "foo@bar.com",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "bio",
+							"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "keywords[]",
+							"value": "red, yellow, orange",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Creation of a user profile with a unique username, and a password."
+			},
+			"response": []
+		},
+		{
+			"name": "PUT : Bad Login credentials",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.test(\"No auth token in response\", function() {\r",
+							"  pm.expect(jsonData).to.not.have.property(\"prf_authtoken\");\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user3NOT",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "password",
+							"value": "user3passNOT",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/login",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "Attempt a bad login"
+			},
+			"response": []
+		},
+		{
+			"name": "PUT : Good Login credentials",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"OK response\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.test(\"Must have auth token in response\", function() {\r",
+							"  pm.expect(jsonData).to.have.property(\"prf_authtoken\");\r",
+							"});\r",
+							"\r",
+							"pm.environment.set(\"authtoken\", jsonData.prf_authtoken);\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user3",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "password",
+							"value": "user3pass",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/login",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"login"
+					]
+				},
+				"description": "Attempt login with right credentials"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Bad authenticate (no token)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/auth",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"auth"
+					]
+				},
+				"description": "Authenticate to the server by sending the auth token"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Corrupted authentication",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Error response\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authtoken}}AndExtraText",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/auth",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"auth"
+					]
+				},
+				"description": "Attempt to violate auth by sending a corrupted token"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Correct authentication copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"OK response\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{authtoken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/auth",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"auth"
+					]
+				},
+				"description": "Authenticate to the server by sending the auth token"
+			},
+			"response": []
+		},
+		{
+			"name": "PUT : Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"OK response\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profile = jsonData.profileList[0];\r",
+							"\r",
+							"pm.test(\"Must all profile attributes except password\", function() {\r",
+							"  pm.expect(profile).to.have.property(\"_id\");\r",
+							"  pm.expect(profile).to.have.property(\"username\");\r",
+							"  pm.expect(profile).to.have.property(\"avatarSrc\");\r",
+							"  pm.expect(profile).to.not.have.property(\"password\");\r",
+							"});\r",
+							"\r",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var testId1 = pm.environment.get(\"testId1\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user1",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "_id",
+							"value": "{{testId1}}",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "bio",
+							"value": "This is my new description",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "avatarSrc",
+							"value": "fake-image-source",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/update",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"update"
+					]
+				},
+				"description": "Attempt login with right credentials"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Profile - TestUser1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"testId1 = pm.environment.get(\"testId1\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/{{testId1}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"{{testId1}}"
+					]
+				},
+				"description": "Deletes a profile with the given id."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Profile - TestUser2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"testId2 = pm.environment.get(\"testId2\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/{{testId2}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"{{testId2}}"
+					]
+				},
+				"description": "Deletes a profile with the given id."
+			},
+			"response": []
+		}
+	]
+}
