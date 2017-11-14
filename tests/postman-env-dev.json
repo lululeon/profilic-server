@@ -1,0 +1,16 @@
+{
+  "id": "01d2ac0f-7436-0022-3c9e-0da48213680d",
+  "name": "dev",
+  "values": [
+    {
+      "enabled": true,
+      "key": "baseurl",
+      "value": "http://localhost:3008/api/v1/profiles",
+      "type": "text"
+    }
+  ],
+  "timestamp": 1510624308361,
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2017-11-14T02:46:27.359Z",
+  "_postman_exported_using": "Postman/5.3.2"
+}

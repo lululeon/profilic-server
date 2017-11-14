@@ -3,7 +3,8 @@
   "description": "A basic user-profile-as-a-service server",
   "version": "0.0.1",
   "devDependencies": {
-    "cross-env": "^5.0.5"
+    "cross-env": "^5.0.5",
+    "newman": "^3.8.3"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -23,6 +24,7 @@
     "startdb": "node src/server/bin/startdb.js",
     "stopdb": "node src/server/bin/stopdb.js",
     "start": "nodemon src/server/server.js",
-    "lazyboot": "concurrently --names \"DB,APP\" --allow-restart \"yarn startdb\" \"yarn start\""
+    "lazyboot": "concurrently --names \"DB,APP\" --allow-restart \"yarn startdb\" \"yarn start\"",
+    "test": "newman run tests/postman-tests.json --environment tests/postman-env-dev.json"
   }
 }
