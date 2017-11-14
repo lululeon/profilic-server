@@ -26,5 +26,9 @@
     "start": "nodemon src/server/server.js",
     "lazyboot": "concurrently --names \"DB,APP\" --allow-restart \"yarn startdb\" \"yarn start\"",
     "test": "newman run tests/postman-tests.json --environment tests/postman-env-dev.json"
-  }
+  },
+  "main": "src/server/server.js",
+  "repository": "https://github.com/lululeon/profilic-server.git",
+  "author": "lululeon <thelululeon@gmail.com>",
+  "license": "MIT"
 }
