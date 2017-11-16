@@ -13,7 +13,7 @@ const w = require('./utils/logger'); //winston logger config
 
 //===== pick up any env settings:
 //good practice to do the following, since in cloud deployment environments you may well be _given_ the port #.
-const PORT = process.env.PRF_PORT_OVERRIDE || process.env.PRF_PORT; // || 3000;
+const PORT = process.env.PORT || process.env.PRF_PORT; // || 3000;
 
 //===== router declarations / imports
 //var svrSocket = require( '../../src/middleware/socket-services' ); //for later
