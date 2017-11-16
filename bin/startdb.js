@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-console.log('>>>>>>>> starting mongodb >>>>>> ');
+const w = require('../src/utils/logger');
+w.info('>>>>>>>> starting mongodb >>>>>> ');
 
 //can't seem to see stdout with .exec, so using .spawn instead, which uses streams and event emitters
 const spawn = require('child_process').spawn;
@@ -8,13 +9,13 @@ const spawn = require('child_process').spawn;
 var mongod = spawn('C:/Program Files/MongoDB/Server/3.4/bin/mongod.exe', ['--dbpath', 'C:/_data/db']);
 
 mongod.stdout.on('data', function(data) {
-  console.log('mongod | stdout : ' + data.toString());
+  w.info('mongod | stdout : ' + data.toString());
 });
 
 mongod.stderr.on('data', function(data) {
-  console.log('mongod | stderr : ' + data.toString());
+  w.info('mongod | stderr : ' + data.toString());
 });
 
 mongod.on('exit', function(exitcode) {
-  console.log('mongod process exited with code [' + exitcode.toString() + ']');
+  w.info('mongod process exited with code [' + exitcode.toString() + ']');
 });

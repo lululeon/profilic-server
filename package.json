@@ -9,6 +9,8 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
+    "command-line-args": "^4.0.7",
+    "command-line-usage": "^4.0.1",
     "concurrently": "^3.5.0",
     "debug": "^3.1.0",
     "dotenv": "^4.0.0",
@@ -21,14 +23,18 @@
     "socket.io-client": "^2.0.3",
     "winston": "^2.3.1"
   },
+  "bin": {
+    "profilic": "bin/profilic.js"
+  },
   "scripts": {
-    "startdb": "node src/server/bin/startdb.js",
-    "stopdb": "node src/server/bin/stopdb.js",
-    "start": "nodemon src/server/server.js",
-    "lazyboot": "concurrently --names \"DB,APP\" --allow-restart \"yarn startdb\" \"yarn start\"",
+    "startdb": "node bin/startdb.js",
+    "stopdb": "node bin/stopdb.js",
+    "start": "node bin/profilic.js",
+    "dev": "nodemon bin/profilic.js",
+    "lazyboot": "concurrently --names \"DB,APP\" --allow-restart \"yarn startdb\" \"yarn dev\"",
     "test": "newman run tests/postman-tests.json --environment tests/postman-env-dev.json"
   },
-  "main": "src/server/server.js",
+  "main": "src/index.js",
   "repository": "https://github.com/lululeon/profilic-server.git",
   "author": "lululeon <thelululeon@gmail.com>",
   "license": "MIT"

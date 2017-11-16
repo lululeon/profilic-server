@@ -1,10 +1,5 @@
-//this file is serverside
-const fs = require('fs');
 const w = require('../utils/logger');
-
-//lets require/import the mongodb native drivers.
-const mongodb = require("mongodb");
-//MongoClient interface needed to connect to a mongodb server.
+const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
 // Note: with mongo, target DB at end of url will be created if not already existent.
@@ -15,47 +10,47 @@ var dbconn;
 var col;
 
 module.exports = {
-  dbsetup: function( callback ) {
+  dbsetup: function (callback) {
     MongoClient.connect(url)//.connectAsync(url)
-    .then(function(db) {
-      w.debug('profilic::bootstrapdata %%% Got Connection');
-      w.debug('... Connection established with', url);
-      w.debug('... Connected to database:' + db.databaseName);
-      w.debug(' ');
+      .then(function (db) {
+        w.debug('profilic::bootstrapdata %%% Got Connection');
+        w.debug('... Connection established with', url);
+        w.debug('... Connected to database:' + db.databaseName);
+        w.debug(' ');
 
-      //will reuse single db connection and close when app shuts down.
-      dbconn = db;
+        //will reuse single db connection and close when app shuts down.
+        dbconn = db;
 
-      //MongoDB creates a collection implicitly when a collection is first referenced.
-      w.debug('... getting profiles collection...');
+        //MongoDB creates a collection implicitly when a collection is first referenced.
+        w.debug('... getting profiles collection...');
 
-      //WARINING: Don't look at the mongodb docs: using the native nodejs drivers (see require mongodb up top)
-      //So use docs for nodejs drivers here: http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html
-      col = db.collection(collectionName); //synchronous!!
-      col.find({}).toArray() //.toArrayAsync()
-      .then(function(docs){
-        count = docs.length;
-        w.info('%%% Got [' + count + '] items');
-        return callback();
+        //WARINING: Don't look at the mongodb docs: using the native nodejs drivers (see require mongodb up top)
+        //So use docs for nodejs drivers here: http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html
+        col = db.collection(collectionName); //synchronous!!
+        col.find({}).toArray() //.toArrayAsync()
+          .then(function (docs) {
+            let count = docs.length;
+            w.info('%%% Got [' + count + '] items');
+            return callback();
+          })
+          .catch(function (err) {
+            w.debug(err);
+            throw (err);
+          });
       })
-      .catch(function(err){
-        w.debug(err);
-        throw(err);
-      });
-    })
-    .catch(function(err){
+      .catch(function (err) {
         w.debug(err);
         return callback(err);
-    });
+      });
   },
 
-  getDBConn: function() {
+  getDBConn: function () {
     return dbconn;
   },
 
-  closeDBConn: function() {
-    if (dbconn != null){
-        dbconn.close();
+  closeDBConn: function () {
+    if (dbconn != null) {
+      dbconn.close();
     }
   }
 }; //end module.exports
