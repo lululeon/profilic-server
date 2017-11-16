@@ -48,7 +48,7 @@ function main() {
 
     //late require to pickup any mods to env:
     const profilicServer = require('../src/'); //automatically implies index.js in that folder
-    profilicServer();
+    profilicServer.runServer();
   }
 }
 
