@@ -179,7 +179,7 @@ function signupHandler(req, res, next) {
   w.debug('profilic::apiRouter::signupHandler ...saving profile...:');
   const UserProfileDAO = req.app.locals.UserProfileDAO;
   let profileObj = req.finalProfile; //set by auth middleware
-  w.debug(profileObj);
+  //w.debug(profileObj);
   try {
     UserProfileDAO.createProfile(profileObj, function (err, response) {
       if (err) throw (err);

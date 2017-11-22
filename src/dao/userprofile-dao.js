@@ -131,7 +131,7 @@ class UserProfileDAO {
 
     col.findOne({ username: username }, { fields: { password: 0 } }) //everyhing except password
       .then(function (response) {
-        w.debug('UserProfileDAO::findByUsername - found: ', response);
+        //w.debug('UserProfileDAO::findByUsername - found: ', response);
         if (response) callback(null, response);
         else callback(new Error('Cannot find user'));
       })
@@ -147,7 +147,7 @@ class UserProfileDAO {
 
     col.findOne({ _id: new mongodb.ObjectID(id) }, { fields: { password: 0 } }) //everyhing except password
       .then(function (response) {
-        w.debug('UserProfileDAO::findById - found: ', response);
+        //w.debug('UserProfileDAO::findById - found: ', response);
         if (response) callback(null, response);
         else callback(new Error('Cannot find user'));
       })
