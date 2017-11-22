@@ -3,7 +3,8 @@ const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
 // Note: with mongo, target DB at end of url will be created if not already existent.
-const url = 'mongodb://' + process.env.PRF_DB_HOST + ':' + process.env.PRF_DB_PORT + '/' + process.env.PRF_DB_NAME;
+const builtUrl = 'mongodb://' + process.env.PRF_DB_HOST + ':' + process.env.PRF_DB_PORT + '/' + process.env.PRF_DB_NAME;
+const url = process.env.PRF_DB_URI || builtUrl;
 const collectionName = process.env.PRF_DB_COLLECTION_PROFILES;
 
 var dbconn;

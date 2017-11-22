@@ -1,7 +1,7 @@
 {
   "name": "profilic-server",
   "description": "A basic user-profile-as-a-service server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "devDependencies": {
     "cross-env": "^5.0.5",
     "newman": "^3.8.3"

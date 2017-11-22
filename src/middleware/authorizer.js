@@ -75,12 +75,13 @@ class Authorizer {
 
     //ensure username is unique for all signups:
     let scope = this;
-    UserProfileDAO.authByUsername(profileObj, function(err, response){
-      if(!err) {
-        next(err);
+    UserProfileDAO.findByUsername(profileObj.username, function(err, response){
+      if(err) {//nothing found
+        w.debug("Authorizer::validateSignup : username is unique");
+      } else {
+        next(new Error("Username is not unique"));
         return;
       }
-      w.debug("Authorizer::validateSignup : username is unique");
      
       //unique username and everything else is okay; lets move on to encrypting the hashes
       //maximum input length for bcrypt is 72 bytes. Wouldve liked to check len with new Blob() type, e.g.
@@ -99,7 +100,7 @@ class Authorizer {
               return;
             }
             let finalProfile = Object.assign(profileObj, {password:hash});
-            w.debug('**** finalProfile :', finalProfile);
+            //w.debug('**** finalProfile :', finalProfile);
             req.finalProfile = finalProfile;
             next();
         });
