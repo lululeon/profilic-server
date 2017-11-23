@@ -70,11 +70,12 @@ class UserProfileDAO {
     w.info('UserProfileDAO::updateProfile');
     let col = this.db.collection(this.profilesCollectionName);
 
-    //sanity checks
+    //sanity checks + sanitize
     if (!profileObj.hasOwnProperty('_id')) throw new Error('Profile unique id missing.');
     const target_id = profileObj._id;
     let _id = new mongodb.ObjectID(target_id);
-    delete profileObj._id; //just paranoid: want zero opportunity to 'update' raw mongo id
+    delete profileObj._id;
+    delete profileObj.password;
 
     let scope = this;
     col.updateOne({ _id: _id }, { $set: profileObj })
@@ -84,6 +85,45 @@ class UserProfileDAO {
         } else {
           //send back the updated object
           scope.findById(target_id, callback);
+        }
+      })
+      .catch(function (err) {
+        w.warn(err);
+        throw (err);
+      });
+  }
+
+
+  //** UPDATE - micro : response payload consists of only the updated fields*/
+  updateProfileWithMicroResponse(profileObj, callback) {
+    w.info('UserProfileDAO::updateProfileWithMicroResponse');
+    let col = this.db.collection(this.profilesCollectionName);
+
+    //sanity checks + sanitize
+    if (!profileObj.hasOwnProperty('_id')) throw new Error('Profile unique id missing.');
+    const target_id = profileObj._id;
+    let _id = new mongodb.ObjectID(target_id);
+    delete profileObj._id;
+    delete profileObj.password;
+    let fetchedAttributes = {};
+    Object.keys(profileObj).forEach( function(k){
+      fetchedAttributes[k] = 1;
+    })
+
+    col.updateOne({ _id: _id }, { $set: profileObj })
+      .then(function (response) {
+        if (response.modifiedCount !== 1) {
+          callback(new Error('Update ONE updated [' + response.modifiedCount + '] docs!'));
+        } else {
+          //send back the updated data elements only          
+          col.findOne({ _id: _id }, { fields: fetchedAttributes })
+          .then(function (response) {
+            if (response) callback(null, response);
+            else callback(new Error('Cannot find user'));
+          })
+          .catch(function (err) {
+            throw (err);
+          });
         }
       })
       .catch(function (err) {
@@ -156,23 +196,19 @@ class UserProfileDAO {
       });
   }
 
-  //** FIND matching list of values in a given field */
+  //** FIND matching list of values in a given field - do not use with _id field */
   findIn(fieldname, valuelist, callback) {
-    w.info('UserProfileDAO::findIn');
+    w.info('UserProfileDAO::findIn <fld>, <valuelist>');
     let col = this.db.collection(this.profilesCollectionName);
     let queryObj = {};
     let finalValues = valuelist;
-    // if(fieldname == '_id') {
-    //     finalValues = valuelist.map( function(v) {
-    //         return (new mongodb.ObjectID(v._id) );
-    //     }, this);
-    // }
+
     queryObj[fieldname] = { $in: finalValues };
-    w.debug(queryObj);
+    //w.debug(queryObj);
 
     col.find(queryObj, { fields: { password: 0 } }).toArray() //rtn all flds except password
       .then(function (response) {
-        w.debug('UserProfileDAO::findIn', response);
+        //w.debug('UserProfileDAO::findIn', response);
         if (response) callback(null, response);
         else callback(new Error('Cannot find users'));
       })
@@ -190,7 +226,7 @@ class UserProfileDAO {
 
     col.findOne({ username: profileObj.username }, { fields: { _id: 1, username: 1, email: 1, password: 1 } })
       .then(function (response) {
-        w.debug('UserProfileDAO::authByUsername - found: ', response);
+        //w.debug('UserProfileDAO::authByUsername - found: ', response);
         if (response) callback(null, response);
         else callback(new Error('Bad input'));
       })

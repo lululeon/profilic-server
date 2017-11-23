@@ -130,11 +130,31 @@ router.put('/profiles/update', auth.validatePermissions, (req, res) => {
       res.json({ profileList: [response], message: 'OK' });
     });
   } catch (err) {
-    w.debug('profilic::apiRouter DEL /profiles/update CATCH block');
+    w.debug('profilic::apiRouter UPDATE /profiles/update CATCH block');
     w.debug(err);
     res.status(500).json({ profileList: [], message: 'An error occurred' });
   }
 }, apiErrorHandler);
+
+//** UPDATE micro */
+router.put('/profiles/update/micro', auth.validatePermissions, (req, res) => {
+  const UserProfileDAO = req.app.locals.UserProfileDAO;
+  let profileObj = req.body;
+  let id = profileObj._id;
+
+  try {
+    UserProfileDAO.updateProfileWithMicroResponse(profileObj, function (err, response) {
+      if (err) throw (err);
+      w.debug('profilic::apiRouter UPDATE /profiles/update/micro - updated profile with id [' + id + ']');
+      res.json({ profileList: [response], message: 'OK' });
+    });
+  } catch (err) {
+    w.debug('profilic::apiRouter UPDATE /profiles/update/micro CATCH block');
+    w.debug(err);
+    res.status(500).json({ profileList: [], message: 'An error occurred' });
+  }
+}, apiErrorHandler);
+
 
 //** UPDATE multiple */
 router.put('/profiles/updatelist', auth.validatePermissions, updateMultiple, apiErrorHandler);

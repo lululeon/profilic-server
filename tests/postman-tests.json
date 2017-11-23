@@ -163,7 +163,7 @@
 			},
 			"response": [
 				{
-					"id": "6b3e831a-ec0f-46cf-9695-ab2f3d58d10d",
+					"id": "13f3ddab-653d-4cf1-98f0-a2e49a0734ef",
 					"name": "POST : Create Profile (Raw Create)",
 					"originalRequest": {
 						"method": "POST",
@@ -713,7 +713,152 @@
 						"update"
 					]
 				},
-				"description": "Attempt login with right credentials"
+				"description": "Attempt a basic update"
+			},
+			"response": []
+		},
+		{
+			"name": "PUT : Update Micro",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"OK response\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profile = jsonData.profileList[0];\r",
+							"\r",
+							"pm.test(\"Must have only the profile attributes being updated, with password excluded\", function() {\r",
+							"  pm.expect(profile).to.not.have.property(\"password\");\r",
+							"  pm.expect(profile).to.have.property(\"bio\");\r",
+							"  pm.expect(profile).to.have.property(\"following\");\r",
+							"});\r",
+							"\r",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var testId1 = pm.environment.get(\"testId1\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "_id",
+							"value": "{{testId1}}",
+							"type": "text",
+							"description": ""
+						},
+						{
+							"key": "bio",
+							"value": "This is an even newer description...",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "following[]",
+							"value": "susie",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "resetting",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/update/micro",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"update",
+						"micro"
+					]
+				},
+				"description": "Attempt a micro update"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Profile by Username - Verify Profile updates",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profile = jsonData.profile;\r",
+							"\r",
+							"pm.test(\"Must reflect cumulative updates\", function() {\r",
+							"  pm.expect(profile.bio).to.eql(\"This is an even newer description...\");\r",
+							"  pm.expect(profile.avatarSrc).to.eql(\"fake-image-source\");\r",
+							"  pm.expect(profile.following.length).to.eql(1);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.globals.unset(\"variable_key\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user1",
+							"type": "text",
+							"description": ""
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/user1",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"user1"
+					]
+				},
+				"description": "Get all the profiles in the database"
 			},
 			"response": []
 		},
