@@ -1,9 +1,10 @@
 {
   "name": "profilic-server",
   "description": "A basic user-profile-as-a-service server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "devDependencies": {
     "cross-env": "^5.0.5",
+    "eslint": "^4.12.0",
     "newman": "^3.8.3"
   },
   "dependencies": {

@@ -161,100 +161,7 @@
 				},
 				"description": "Create a raw profile directly on the server without going through any signup validation. Useful for test raw database connectivity and confirm the correct database collection is available."
 			},
-			"response": [
-				{
-					"id": "13f3ddab-653d-4cf1-98f0-a2e49a0734ef",
-					"name": "POST : Create Profile (Raw Create)",
-					"originalRequest": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"type": "text",
-								"name": "Content-Type",
-								"value": "application/x-www-form-urlencoded"
-							}
-						],
-						"body": {
-							"mode": "urlencoded",
-							"urlencoded": [
-								{
-									"key": "username",
-									"value": "tester",
-									"type": "text",
-									"description": ""
-								},
-								{
-									"key": "bio",
-									"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
-									"type": "text",
-									"description": ""
-								},
-								{
-									"key": "following[]",
-									"value": "red, yellow, orange",
-									"type": "text",
-									"description": ""
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseurl}}/create",
-							"host": [
-								"{{baseurl}}"
-							],
-							"path": [
-								"create"
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"_postman_previewtype": "text",
-					"header": [
-						{
-							"key": "Connection",
-							"value": "keep-alive",
-							"name": "Connection",
-							"description": "Options that are desired for the connection"
-						},
-						{
-							"key": "Content-Length",
-							"value": "236",
-							"name": "Content-Length",
-							"description": "The length of the response body in octets (8-bit bytes)"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json; charset=utf-8",
-							"name": "Content-Type",
-							"description": "The mime type of this content"
-						},
-						{
-							"key": "Date",
-							"value": "Mon, 13 Nov 2017 16:20:23 GMT",
-							"name": "Date",
-							"description": "The date and time that the message was sent"
-						},
-						{
-							"key": "ETag",
-							"value": "W/\"ec-ecTRn2WXeuTghkzT0EvHKHNDQ+o\"",
-							"name": "ETag",
-							"description": "An identifier for a specific version of a resource, often a message digest"
-						},
-						{
-							"key": "X-Powered-By",
-							"value": "Express",
-							"name": "X-Powered-By",
-							"description": "Specifies the technology (ASP.NET, PHP, JBoss, e.g.) supporting the web application (version details are often in X-Runtime, X-Version, or X-AspNet-Version)"
-						}
-					],
-					"cookie": [],
-					"responseTime": 106,
-					"body": "{\"profileList\":[{\"username\":\"tester\",\"bio\":\"I am a tester! This is a test. I even have strange characters:  διακριτικός\",\"following\":[\"red, yellow, orange\"],\"_id\":\"5a09c6472c84ca2ffc76a6e9\"}],\"insertedCount\":1,\"message\":\"OK\"}"
-				}
-			]
+			"response": []
 		},
 		{
 			"name": "POST : Bad Signup (no pwd)",
@@ -387,6 +294,182 @@
 					]
 				},
 				"description": "Creation of a user profile with a unique username, and a password."
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Link profiles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.expect(jsonData.profileList.length).to.equal(2);\r",
+							"pm.expect(jsonData.profileList[0].username).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[1].username).to.equal(\"user1\");\r",
+							"pm.expect(jsonData.profileList[1].followers[0]).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[0].following[0]).to.equal(\"user1\");"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.get(\"testId1\");",
+							"pm.environment.get(\"testId2\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "linkfrom[_id]",
+							"value": "{{testId2}}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkfrom[username]",
+							"value": "user3",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkto[_id]",
+							"value": "{{testId1}}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkto[username]",
+							"value": "user1",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"link"
+					]
+				},
+				"description": "Create a link from one profile to another"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE: Unlink profiles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"pm.expect(jsonData.profileList.length).to.equal(2);\r",
+							"pm.expect(jsonData.profileList[0].username).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[1].username).to.equal(\"user1\");\r",
+							"pm.expect(jsonData.profileList[1].followers.length).to.equal(0);\r",
+							"pm.expect(jsonData.profileList[0].following.length).to.equal(0);"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.get(\"testId1\");",
+							"pm.environment.get(\"testId2\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "linkfrom[_id]",
+							"value": "{{testId2}}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkfrom[username]",
+							"value": "user3",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkfrom[following][]",
+							"value": "user1",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkto[_id]",
+							"value": "{{testId1}}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkto[username]",
+							"value": "user1",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "linkto[followers][]",
+							"value": "user3",
+							"description": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/link",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"link"
+					]
+				},
+				"description": "Remove the link from one profile to another"
 			},
 			"response": []
 		},

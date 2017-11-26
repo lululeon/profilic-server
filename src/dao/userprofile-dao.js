@@ -52,8 +52,8 @@ class UserProfileDAO {
 
   //** UPDATE Async */
   updateProfileAsync(profileObj) {//promisified version to support follow relationships implementaion
+    w.info('UserProfileDAO::updateProfileAsync');
     return new Promise((resolve, reject) => {
-      w.info('UserProfileDAO::updateProfileAsync : updating profile obj:', profileObj);
       this.updateProfile(profileObj, function (err, response) {
         if (err) {
           w.warn(err);
@@ -81,11 +81,10 @@ class UserProfileDAO {
     col.updateOne({ _id: _id }, { $set: profileObj })
       .then(function (response) {
         if (response.modifiedCount !== 1) {
-          callback(new Error('Update ONE updated [' + response.modifiedCount + '] docs!'));
-        } else {
-          //send back the updated object
-          scope.findById(target_id, callback);
+          w.warn('Update ONE updated [' + response.modifiedCount + '] docs! No need to update unchanged document?');
         }
+        //send back the updated object
+        scope.findById(target_id, callback);
       })
       .catch(function (err) {
         w.warn(err);
@@ -93,6 +92,20 @@ class UserProfileDAO {
       });
   }
 
+  //** UPDATE Micro Async */
+  updateProfileWithMicroResponseAsync(profileObj) {//promisified version to support follow relationships implementaion
+    w.info('UserProfileDAO::updateProfileWithMicroResponseAsync');
+    return new Promise((resolve, reject) => {
+      this.updateProfileWithMicroResponse(profileObj, function (err, response) {
+        if (err) {
+          w.warn(err);
+          reject(err);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
 
   //** UPDATE - micro : response payload consists of only the updated fields*/
   updateProfileWithMicroResponse(profileObj, callback) {
@@ -113,18 +126,17 @@ class UserProfileDAO {
     col.updateOne({ _id: _id }, { $set: profileObj })
       .then(function (response) {
         if (response.modifiedCount !== 1) {
-          callback(new Error('Update ONE updated [' + response.modifiedCount + '] docs!'));
-        } else {
-          //send back the updated data elements only          
-          col.findOne({ _id: _id }, { fields: fetchedAttributes })
-          .then(function (response) {
-            if (response) callback(null, response);
-            else callback(new Error('Cannot find user'));
-          })
-          .catch(function (err) {
-            throw (err);
-          });
+          w.warn('Update ONE updated [' + response.modifiedCount + '] docs! No need to update unchanged document?');
         }
+        //send back the updated data elements only          
+        col.findOne({ _id: _id }, { fields: fetchedAttributes })
+        .then(function (response) {
+          if (response) callback(null, response);
+          else callback(new Error('Cannot find user'));
+        })
+        .catch(function (err) {
+          throw (err);
+        });
       })
       .catch(function (err) {
         w.warn(err);

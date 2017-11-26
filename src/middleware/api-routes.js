@@ -117,6 +117,9 @@ router.post('/profiles/signup', auth.validateSignup, signupHandler, apiErrorHand
 //** CREATE LINK between existing profiles */
 router.post('/profiles/link/', auth.validatePermissions, createLinkage, updateMultiple, apiErrorHandler);
 
+//** REMOVE LINK between existing profiles */
+router.delete('/profiles/link/', auth.validatePermissions, deleteLinkage, updateMultiple, apiErrorHandler);
+
 //** UPDATE */
 router.put('/profiles/update', auth.validatePermissions, (req, res) => {
   const UserProfileDAO = req.app.locals.UserProfileDAO;
@@ -234,9 +237,15 @@ function updateMultiple(req, res, next) {
       res.status(500).json({ profileList: [], message: 'Input list not provided' });
       return;
     }
-    updatePromises = profileObjList.map((profileObj) => {
-      return UserProfileDAO.updateProfileAsync(profileObj); //the promise
-    });
+    if(req.microUpdate){//using if-else cos having problems with deeply nested 'this' context playing well with map.
+      updatePromises = profileObjList.map((profileObj) => {
+        return UserProfileDAO.updateProfileWithMicroResponseAsync(profileObj); //the promise
+      });
+    } else {
+      updatePromises = profileObjList.map((profileObj) => {
+        return UserProfileDAO.updateProfileAsync(profileObj); //the promise
+      });
+    }
   } catch (err) {
     w.debug('profilic::apiRouter::updateMultiple CATCH block');
     w.debug(err);
@@ -270,7 +279,7 @@ function createLinkage(req, res, next) {
     updateList.push(fromObj);
 
 
-    let followersList = fromProfileObj.followers || [];
+    let followersList = toProfileObj.followers || [];
     let followingUser = fromProfileObj.username;
 
     followersList.push(followingUser);
@@ -283,12 +292,65 @@ function createLinkage(req, res, next) {
     if (updateList.length > 0) {
       //hand over to updateMultiple
       req.middlewareFinalizedList = updateList;
+      req.microUpdate = true;
       next();
       return;
+    } else {
+      //nothing to do
+      res.json({ profileList: [fromProfileObj, toProfileObj], message: 'OK' });
     }
 
   } catch (err) {
     w.debug('profilic::apiRouter::createLinkage - an error occured');
+    w.debug(err);
+    return next(err);
+  }
+}
+
+function deleteLinkage(req, res, next) {
+  w.debug('profilic::apiRouter::deleteLinkage');
+
+  let fromProfileObj = req.body.linkfrom;
+  let toProfileObj = req.body.linkto;
+
+  try {
+    //TODO: future 'join' table. For now, supporting demo apps with super flat data structures.
+    let updateList = [];
+    let followingList = fromProfileObj.following || [];
+    let followedUser = toProfileObj.username;
+
+    let idx1 = followingList.indexOf(followedUser);
+    if(idx1 != -1) {
+      followingList.splice(idx1,1);
+      let fromObj = Object.assign(fromProfileObj);
+      fromObj.following = followingList;
+      updateList.push(fromObj);
+    }
+
+
+    let followersList = toProfileObj.followers || [];
+    let followingUser = fromProfileObj.username;
+
+    let idx2 = followersList.indexOf(followingUser);
+    if(idx2 != -1){
+      followersList.splice(idx2,1);
+      let toObj = Object.assign(toProfileObj);
+      toObj.followers = followersList;
+      updateList.push(toObj);
+    }
+
+    if (updateList.length > 0) {
+      //hand over to updateMultiple
+      req.middlewareFinalizedList = updateList;
+      req.microUpdate = true;
+      next();
+      return;
+    } else {
+      //nothing to do
+      res.json({ profileList: [fromProfileObj, toProfileObj], message: 'OK' });
+    }
+  } catch (err) {
+    w.debug('profilic::apiRouter::deleteLinkage - an error occured');
     w.debug(err);
     return next(err);
   }

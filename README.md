@@ -33,8 +33,10 @@ Proper documentation to come.
 - POST /api/v1/profiles/create
 - POST /api/v1/profiles/signup
 - POST /api/v1/profiles/link
+- DELETE /api/v1/profiles/link
 - PUT /api/v1/profiles/update
 - PUT /api/v1/profiles/updatelist
+- PUT /api/v1/profiles/update/micro
 - PUT /api/v1/profiles/login
 - POST /api/v1/profiles/auth
 - DELETE /api/v1/profiles/:id
