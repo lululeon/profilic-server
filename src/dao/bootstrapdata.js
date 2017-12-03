@@ -17,7 +17,6 @@ module.exports = {
         w.debug('profilic::bootstrapdata %%% Got Connection');
         w.debug('... Connection established with', url);
         w.debug('... Connected to database:' + db.databaseName);
-        w.debug(' ');
 
         //will reuse single db connection and close when app shuts down.
         dbconn = db;

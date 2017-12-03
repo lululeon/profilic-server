@@ -2,7 +2,7 @@
 	"info": {
 		"name": "Profilic-server tests",
 		"_postman_id": "1d2b0602-e4ab-0371-42e5-85661a4d29d1",
-		"description": "# API endpoints for profilic-server.\n\nAPI Calls\n\n- GET /api/v1/profiles\n- GET /api/v1/profiles/:username\n- PUT /api/v1/profiles/filter/:fieldname\n- POST /api/v1/profiles/create\n- POST /api/v1/profiles/signup\n- POST /api/v1/profiles/link\n- PUT /api/v1/profiles/update\n- PUT /api/v1/profiles/updatelist\n- PUT /api/v1/profiles/login\n- POST /api/v1/profiles/auth\n- DELETE /api/v1/profiles/:id",
+		"description": "# API endpoints for profilic-server.\n\nAPI Calls\n\n- GET /api/v1/profiles\n- GET /api/v1/profiles/:username\n- PUT /api/v1/profiles/filter/:fieldname\n- POST /api/v1/profiles/signup\n- POST /api/v1/profiles/link\n- PUT /api/v1/profiles/update\n- PUT /api/v1/profiles/update/micro\n- PUT /api/v1/profiles/updatelist\n- PUT /api/v1/profiles/login\n- POST /api/v1/profiles/auth\n- DELETE /api/v1/profiles/:id",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -33,38 +33,6 @@
 					]
 				},
 				"description": "Get all the profiles in the database"
-			},
-			"response": []
-		},
-		{
-			"name": "POST : Create Empty",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"Error response\", function() {\r",
-							"  pm.expect(pm.response.code).to.not.equal(200);\r",
-							"});"
-						]
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {},
-				"url": {
-					"raw": "{{baseurl}}/create",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"create"
-					]
-				},
-				"description": "Create request with no payload"
 			},
 			"response": []
 		},
@@ -101,69 +69,6 @@
 			"response": []
 		},
 		{
-			"name": "POST : Create Profile (Raw Create)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"pm.test(\"OK response\", function() {\r",
-							"  pm.expect(pm.response.code).to.equal(200);\r",
-							"});\r",
-							"\r",
-							"var jsonData = JSON.parse(responseBody);\r",
-							"pm.environment.set(\"testId1\", jsonData.profileList[0]._id);\r",
-							""
-						]
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/x-www-form-urlencoded"
-					}
-				],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "username",
-							"value": "user1",
-							"type": "text",
-							"description": ""
-						},
-						{
-							"key": "bio",
-							"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
-							"type": "text",
-							"description": ""
-						},
-						{
-							"key": "following[]",
-							"value": "red, yellow, orange",
-							"type": "text",
-							"description": ""
-						}
-					]
-				},
-				"url": {
-					"raw": "{{baseurl}}/create",
-					"host": [
-						"{{baseurl}}"
-					],
-					"path": [
-						"create"
-					]
-				},
-				"description": "Create a raw profile directly on the server without going through any signup validation. Useful for test raw database connectivity and confirm the correct database collection is available."
-			},
-			"response": []
-		},
-		{
 			"name": "POST : Bad Signup (no pwd)",
 			"event": [
 				{
@@ -193,20 +98,17 @@
 						{
 							"key": "username",
 							"value": "user2",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "email",
 							"value": "foo@bar.com",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "bio",
 							"value": "I am a tester! This is a test.",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						}
 					]
 				},
@@ -224,19 +126,46 @@
 			"response": []
 		},
 		{
-			"name": "POST : Good Signup",
+			"name": "POST : Good Signup 1",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"type": "text/javascript",
 						"exec": [
+							"var schema = {\r",
+							"    \"title\": \"User Profile Schema\",\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"joinedOn\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        },\r",
+							"        \"modifiedOn\" : {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"joinedOn\",\"modifiedOn\"]\r",
+							"}\r",
+							"        \r",
 							"pm.test(\"Status code is 200\", function() {\r",
 							"  pm.expect(pm.response.code).to.equal(200);\r",
 							"});\r",
 							"\r",
 							"var jsonData = JSON.parse(responseBody);\r",
-							"pm.environment.set(\"testId2\", jsonData.profileList[0]._id);"
+							"var profile = jsonData.profileList[0];\r",
+							"pm.environment.set(\"testId1\", profile._id);\r",
+							"\r",
+							"pm.test(\"Creation timestamps\", function() {\r",
+							"  pm.expect(tv4.validate(profile, schema)).to.be.true;\r",
+							"});\r",
+							"pm.environment.set(\"tsModified1\", profile.modifiedOn);\r",
+							"\r",
+							"pm.test(\"No password returned\", function() {\r",
+							"    pm.expect(profile).to.not.have.property(\"password\");\r",
+							"});\r",
+							""
 						]
 					}
 				}
@@ -254,33 +183,124 @@
 					"urlencoded": [
 						{
 							"key": "username",
-							"value": "user3",
-							"type": "text",
-							"description": ""
+							"value": "user1",
+							"type": "text"
 						},
 						{
 							"key": "password",
-							"value": "user3pass",
-							"type": "text",
-							"description": ""
+							"value": "user1pass",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "blahblah@blah.com",
+							"type": "text"
+						},
+						{
+							"key": "bio",
+							"value": "I am the very first profile. So there.",
+							"type": "text"
+						},
+						{
+							"key": "keywords[]",
+							"value": "blue",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Creation of a user profile with a unique username, and a password."
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Good Signup 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var schema = {\r",
+							"    \"title\": \"User Profile Schema\",\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"joinedOn\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        },\r",
+							"        \"modifiedOn\" : {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"joinedOn\",\"modifiedOn\"]\r",
+							"}\r",
+							"        \r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profile = jsonData.profileList[0];\r",
+							"pm.environment.set(\"testId2\", profile._id);\r",
+							"\r",
+							"pm.test(\"Creation timestamps\", function() {\r",
+							"  pm.expect(tv4.validate(profile, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"No password returned\", function() {\r",
+							"  pm.expect(profile).to.not.have.property(\"password\");\r",
+							"});\r",
+							"\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user2",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "user2pass",
+							"type": "text"
 						},
 						{
 							"key": "email",
 							"value": "foo@bar.com",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "bio",
 							"value": "I am a tester! This is a test. I even have strange characters:  διακριτικός",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "keywords[]",
 							"value": "red, yellow, orange",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						}
 					]
 				},
@@ -311,9 +331,9 @@
 							"\r",
 							"var jsonData = JSON.parse(responseBody);\r",
 							"pm.expect(jsonData.profileList.length).to.equal(2);\r",
-							"pm.expect(jsonData.profileList[0].username).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[0].username).to.equal(\"user2\");\r",
 							"pm.expect(jsonData.profileList[1].username).to.equal(\"user1\");\r",
-							"pm.expect(jsonData.profileList[1].followers[0]).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[1].followers[0]).to.equal(\"user2\");\r",
 							"pm.expect(jsonData.profileList[0].following[0]).to.equal(\"user1\");"
 						]
 					}
@@ -343,25 +363,21 @@
 						{
 							"key": "linkfrom[_id]",
 							"value": "{{testId2}}",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkfrom[username]",
-							"value": "user3",
-							"description": "",
+							"value": "user2",
 							"type": "text"
 						},
 						{
 							"key": "linkto[_id]",
 							"value": "{{testId1}}",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkto[username]",
 							"value": "user1",
-							"description": "",
 							"type": "text"
 						}
 					]
@@ -393,7 +409,7 @@
 							"\r",
 							"var jsonData = JSON.parse(responseBody);\r",
 							"pm.expect(jsonData.profileList.length).to.equal(2);\r",
-							"pm.expect(jsonData.profileList[0].username).to.equal(\"user3\");\r",
+							"pm.expect(jsonData.profileList[0].username).to.equal(\"user2\");\r",
 							"pm.expect(jsonData.profileList[1].username).to.equal(\"user1\");\r",
 							"pm.expect(jsonData.profileList[1].followers.length).to.equal(0);\r",
 							"pm.expect(jsonData.profileList[0].following.length).to.equal(0);"
@@ -425,37 +441,31 @@
 						{
 							"key": "linkfrom[_id]",
 							"value": "{{testId2}}",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkfrom[username]",
-							"value": "user3",
-							"description": "",
+							"value": "user2",
 							"type": "text"
 						},
 						{
 							"key": "linkfrom[following][]",
 							"value": "user1",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkto[_id]",
 							"value": "{{testId1}}",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkto[username]",
 							"value": "user1",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "linkto[followers][]",
-							"value": "user3",
-							"description": "",
+							"value": "user2",
 							"type": "text"
 						}
 					]
@@ -509,14 +519,12 @@
 						{
 							"key": "username",
 							"value": "user3NOT",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "password",
 							"value": "user3passNOT",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						}
 					]
 				},
@@ -570,15 +578,13 @@
 					"urlencoded": [
 						{
 							"key": "username",
-							"value": "user3",
-							"type": "text",
-							"description": ""
+							"value": "user2",
+							"type": "text"
 						},
 						{
 							"key": "password",
-							"value": "user3pass",
-							"type": "text",
-							"description": ""
+							"value": "user2pass",
+							"type": "text"
 						}
 					]
 				},
@@ -729,11 +735,15 @@
 							"var jsonData = JSON.parse(responseBody);\r",
 							"var profile = jsonData.profileList[0];\r",
 							"\r",
+							"//var newTimestamp = new Date(profile.modifiedOn);\r",
+							"// var oldTimestamp = new Date(tsModified1);\r",
+							"\r",
 							"pm.test(\"Must all profile attributes except password\", function() {\r",
 							"  pm.expect(profile).to.have.property(\"_id\");\r",
 							"  pm.expect(profile).to.have.property(\"username\");\r",
 							"  pm.expect(profile).to.have.property(\"avatarSrc\");\r",
 							"  pm.expect(profile).to.not.have.property(\"password\");\r",
+							"//  pm.expect(newTimestamp).to.be.above(oldTimestamp); //not working at the mo.\r",
 							"});\r",
 							"\r",
 							""
@@ -745,7 +755,9 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"var testId1 = pm.environment.get(\"testId1\");"
+							"var testId1 = pm.environment.get(\"testId1\");",
+							"var tsModified1 = pm.environment.get(\"tsModified1\");",
+							"console.log(tsModified1);"
 						]
 					}
 				}
@@ -764,25 +776,21 @@
 						{
 							"key": "username",
 							"value": "user1",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "_id",
 							"value": "{{testId1}}",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "bio",
 							"value": "This is my new description",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "avatarSrc",
 							"value": "fake-image-source",
-							"description": "",
 							"type": "text"
 						}
 					]
@@ -849,25 +857,21 @@
 						{
 							"key": "_id",
 							"value": "{{testId1}}",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						},
 						{
 							"key": "bio",
 							"value": "This is an even newer description...",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "following[]",
 							"value": "susie",
-							"description": "",
 							"type": "text"
 						},
 						{
 							"key": "password",
 							"value": "resetting",
-							"description": "",
 							"type": "text"
 						}
 					]
@@ -927,8 +931,7 @@
 						{
 							"key": "username",
 							"value": "user1",
-							"type": "text",
-							"description": ""
+							"type": "text"
 						}
 					]
 				},
@@ -942,6 +945,219 @@
 					]
 				},
 				"description": "Get all the profiles in the database"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : Signup - Duplicate username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is not 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.not.equal(200);\r",
+							"});\r",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user2",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "newpassword",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "newemail@mail.com",
+							"type": "text"
+						},
+						{
+							"key": "bio",
+							"value": "Testing 123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Creation of a user profile with non-unique credentials"
+			},
+			"response": []
+		},
+		{
+			"name": "POST : 3rd Signup - Get Latest Limit 2 Test Prep",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var schema = {\r",
+							"    \"title\": \"User Profile Schema\",\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"joinedOn\": {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        },\r",
+							"        \"modifiedOn\" : {\r",
+							"            \"type\": \"string\",\r",
+							"            \"format\": \"date-time\"\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"joinedOn\",\"modifiedOn\"]\r",
+							"}\r",
+							"        \r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"  pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profile = jsonData.profileList[0];\r",
+							"pm.environment.set(\"testId3\", profile._id);\r",
+							"\r",
+							"pm.test(\"Creation timestamp\", function() {\r",
+							"  pm.expect(tv4.validate(profile, schema)).to.be.true;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"No password returned\", function() {\r",
+							"  pm.expect(profile).to.not.have.property(\"password\");\r",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user3",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "user3pass",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "user3@example.com",
+							"type": "text"
+						},
+						{
+							"key": "bio",
+							"value": "I am the third user.",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/signup",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"signup"
+					]
+				},
+				"description": "Creation of a user profile"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Latest limit 2 - part 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = JSON.parse(responseBody);\r",
+							"var profiles = jsonData.profileList;\r",
+							"\r",
+							"pm.test(\"Only 2 profiles returned\", function() {\r",
+							"  pm.expect(profiles.length).to.eql(2);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"expect first item to be that last inserted\", function() {\r",
+							"  pm.expect(profiles[0].username).to.eql('user3');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"expect second item to be that next recently inserted\", function() {\r",
+							"  pm.expect(profiles[1].username).to.eql('user2');\r",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "user1",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseurl}}/latest/2",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"latest",
+						"2"
+					]
+				},
+				"description": "Get the latest 2 profiles in the database."
 			},
 			"response": []
 		},
@@ -1021,6 +1237,47 @@
 					],
 					"path": [
 						"{{testId2}}"
+					]
+				},
+				"description": "Deletes a profile with the given id."
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE Profile - TestUser3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"response is ok\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"testId3 = pm.environment.get(\"testId3\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "{{baseurl}}/{{testId3}}",
+					"host": [
+						"{{baseurl}}"
+					],
+					"path": [
+						"{{testId3}}"
 					]
 				},
 				"description": "Deletes a profile with the given id."

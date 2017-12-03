@@ -35,6 +35,25 @@ router.get('/profiles', (req, res) => {
   }
 });
 
+router.get('/profiles/latest/:limit', (req, res) => {
+  const UserProfileDAO = req.app.locals.UserProfileDAO;
+  let queryLimit = parseInt(req.params.limit);
+  if(typeof(queryLimit) !== 'number') {
+    res.status(400).json({ message: 'Bad input data' });
+  } else {
+    UserProfileDAO.getLatestProfiles(queryLimit, function (err, docs) {
+      if (err) {
+        w.debug('profilic::apiRouter GET /profiles/latest/:limit ERROR');
+        w.debug(err);
+        res.status(500).json({ profileList: [], message: 'An error occurred' });
+      } else {
+        w.debug('profilic::apiRouter GET /profiles/latest/:limit [' + docs.length + '] items retrieved');
+        res.json({ profileList: docs, message: 'OK' });
+      }
+    });
+  }
+});
+
 //** GET BY USERNAME */
 router.get('/profiles/:username', (req, res) => {
   const UserProfileDAO = req.app.locals.UserProfileDAO;
@@ -82,33 +101,6 @@ router.put('/profiles/filter/:fieldname', (req, res) => {
 
 
 // ####################################### CREATES ###################################
-//** RAW CREATE - for CRUD tests on DEV only*/
-if (process.env.PRF_NODE_ENV === 'development') {
-  router.post('/profiles/create', (req, res) => {
-    const UserProfileDAO = req.app.locals.UserProfileDAO;
-    let profileObj = req.body;
-    if (Object.keys(profileObj).length === 0) {
-      res.status(400).json({ profileList: [], message: 'no data provided' });
-      return;
-    }
-
-    try {
-      UserProfileDAO.createProfile(profileObj, function (err, response) {
-        if (err) {
-          res.status(500).json({ profileList: [], insertedCount: 0, message: 'An error occurred' });
-          return;
-        }
-        w.debug('profilic::apiRouter PUT /profiles/create created profile with id [' + response.insertedId + ']');
-        res.json({ profileList: response.ops, insertedCount: response.insertedCount, message: 'OK' });
-      });
-    } catch (err) {
-      w.debug('profilic::apiRouter PUT /profiles/create CATCH block');
-      w.debug(err);
-      res.status(500).json({ profileList: [], insertedCount: 0, message: 'An error occurred' });
-    }
-  });
-}
-
 //** SIGNUP */
 router.post('/profiles/signup', auth.validateSignup, signupHandler, apiErrorHandler);
 
@@ -204,10 +196,12 @@ function signupHandler(req, res, next) {
   let profileObj = req.finalProfile; //set by auth middleware
   //w.debug(profileObj);
   try {
-    UserProfileDAO.createProfile(profileObj, function (err, response) {
+    UserProfileDAO.signup(profileObj, function (err, response) {
       if (err) throw (err);
       w.debug('profilic::apiRouter::signupHandler created profile with id [' + response.insertedId + ']');
-      res.json({ profileList: response.ops, insertedCount: response.insertedCount, message: 'OK' });
+      let newProfile = response.ops[0];
+      delete newProfile.password;
+      res.json({ profileList: [newProfile], insertedCount: response.insertedCount, message: 'OK' });
     });
   } catch (err) {
     w.debug('profilic::apiRouter::signupHandler CATCH block');
