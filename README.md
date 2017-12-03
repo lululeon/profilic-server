@@ -28,9 +28,9 @@ The API routes for user management will now be in place.
 Proper documentation to come.
 
 - GET /api/v1/profiles/
+- GET /api/v1/profiles/latest
 - GET /api/v1/profiles/:username
 - PUT /api/v1/profiles/filter/:fieldname
-- POST /api/v1/profiles/create
 - POST /api/v1/profiles/signup
 - POST /api/v1/profiles/link
 - DELETE /api/v1/profiles/link
